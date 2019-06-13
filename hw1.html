@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<style>
+
+
+</style>
+</head>
+
+<body> 
+<div>
+  <button id="bt1" type="button">start</button>
+</div>
+<div>
+  <button id="bt2" type="button">turn complex mode on</button>
+</div>
+<div>
+  <!--
+  <div id="light" style="position:absolute;top:10vw;left:30vw;  
+background:pink;width:20px;height:20px;  
+border-radius:15px;z-index:1"></div>
+-->
+  <img src="http://img2.3png.com/a91fa8fb5ba4a88ca3f396ccf417ddb5ca43.png" style="position:absolute;top:0vw;left:0vw;width:70vw;z-index:-1">
+
+</div>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script>
+var bt_status = false;
+var c_flag = false;
+var light;
+var light1;
+var light2;
+var light3;
+var light4;
+var light5;
+var light6;
+var light7;
+$('#bt1').click(function() {
+  bt_status = !bt_status;
+  if (bt_status) {
+    this.innerHTML = "stop";
+    light.changeColor();
+    light1.changeColor();
+    light2.changeColor();
+    light3.changeColor();
+    light4.changeColor();
+    light5.changeColor();
+    light6.changeColor();
+    light7.changeColor();
+  } else {
+    this.innerHTML = "start"
+    clearTimeout(light.theTimer);
+    clearTimeout(light1.theTimer);
+    clearTimeout(light2.theTimer);
+    clearTimeout(light3.theTimer);
+    clearTimeout(light4.theTimer);
+    clearTimeout(light5.theTimer);
+    clearTimeout(light6.theTimer);
+    clearTimeout(light7.theTimer);
+    light.element.style.background = "hsl(0, 0%, 40%)";
+    light2.element.style.background = "hsl(0, 0%, 40%)";
+    light3.element.style.background = "hsl(0, 0%, 40%)";
+    light4.element.style.background = "hsl(0, 0%, 40%)";
+    light5.element.style.background = "hsl(0, 0%, 40%)";
+    light6.element.style.background = "hsl(0, 0%, 40%)";
+    light7.element.style.background = "hsl(0, 0%, 40%)";
+    light1.element.style.background = "hsl(0, 0%, 40%)";
+    
+    
+  }
+});
+$('#bt2').click(function() {
+  c_flag = !c_flag;
+  if (c_flag) {
+    this.innerHTML = "turn complex mode off"
+  } else {
+    this.innerHTML = "turn complex mode on"
+  }
+});
+
+class Light {
+
+  constructor(pos_x, pos_y, sz_x, sz_y) {
+    // create/append div dynamically
+    // https://stackoverflow.com/questions/14004117/create-div-and-append-div-dynamically
+    this.element = document.createElement('div');
+    //this = iDiv;
+    this.element.id = 'light';
+    // set element style attribute
+    //https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/style
+    this.element.style.cssText = "position:absolute;width:" + sz_x + "px;height:" + sz_y + "px;border-radius:15px;z-index:1";
+    this.element.style.top = pos_x + 'vw';
+    this.element.style.left = pos_y + 'vw';
+    // CSS color property: https://www.w3schools.com/cssref/pr_text_color.asp
+    // hsl: https://www.w3schools.com/colors/colors_hsl.asp
+    this.element.style.background = "hsl(89, 43%, 51%)";
+    document.getElementsByTagName('body')[0].appendChild(this.element);
+  }
+
+  changeColor() {
+    // https://stackoverflow.com/questions/45147661/javascript-recursion-within-a-class/45147713
+    var self = this;
+    //var hue = Math.random() * 200;
+    //self.element.style.background = "hsl(" + hue + ", 43%, 51%)";
+    var hue = Math.random() * 200;
+      self.element.style.background = "hsl(" + hue + ", 43%, 51%)";
+      var cycle_duty=500;
+      if (!c_flag) {
+				cycle_duty=500;
+      } else {
+       cycle_duty=Math.random() * 2000;
+      }
+    	this.theTimer = setTimeout(function(){
+      self.changeColor();
+      }, cycle_duty);
+      /*var self = this;
+    //var hue = Math.random() * 200;
+    //self.element.style.background = "hsl(" + hue + ", 43%, 51%)";
+    var duty_cycle=500;
+    
+    var theTimer=setInterval(function() {
+      if (bt_status) {
+      if(c_flag==true){duty_cycle = Math.random*2000;clearInterval(theTimer);self.changeColor();
+    	}else{duty_cycle=500;}
+      	var hue = Math.random() * 200;
+        self.element.style.background = "hsl(" + hue + ", 43%, 51%)";
+        //self.changeColor()
+      } else {
+        self.element.style.background = "hsl(0, 0%, 40%)";
+      }
+    }, Math.random()*2000);*/
+    
+
+
+
+    // setTimeout ( self.changeColor , 1000);  // why this is not working ...
+  }
+
+}
+
+////////////////////////////////
+init();
+
+function init() {
+  light = new Light(10, 30, 20, 20);
+  //light.changeColor();
+  light1 = new Light(40, 30, 12, 12);
+  //light1.changeColor();
+  light2 = new Light(37, 35, 15, 15);
+  //light2.changeColor();
+  light3 = new Light(50, 50, 20, 20);
+  //light3.changeColor();
+  light4 = new Light(80, 50, 20, 20);
+  //light4.changeColor();
+  light5 = new Light(80, 20, 20, 20);
+  //light5.changeColor();
+  light6 = new Light(60, 40, 30, 30);
+  //light6.changeColor();
+  light7 = new Light(65, 33, 26, 26);
+  //light7.changeColor();
+  light.element.style.background = "hsl(0, 0%, 40%)";
+    light2.element.style.background = "hsl(0, 0%, 40%)";
+    light3.element.style.background = "hsl(0, 0%, 40%)";
+    light4.element.style.background = "hsl(0, 0%, 40%)";
+    light5.element.style.background = "hsl(0, 0%, 40%)";
+    light6.element.style.background = "hsl(0, 0%, 40%)";
+    light7.element.style.background = "hsl(0, 0%, 40%)";
+    light1.element.style.background = "hsl(0, 0%, 40%)";
+}
+
+
+
+</script>
+</body>
+
+</html>

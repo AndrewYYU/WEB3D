@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<style>
+#info {
+  position: absolute;
+  top: 2%;
+  width: 100%;
+  padding: 10px;
+  text-align: center;
+  color: #ffff00
+}
+
+body {
+  overflow: hidden;
+}
+
+
+</style>
+</head>
+
+<body> 
+<div id="info"> Hw2 <a href="javascript:toggleCamera()">Toggle Camera</a>
+  <br>
+  <button id="tView" style="width:20%">Toggle Turn</button>
+
+  <input type=range min=0 max=1 step=0.1 id='intensity'> intensity <br>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js"></script>
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js">
+
+
+</script>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<script>
+var useCamera1 = 0;
+var lightsOff = false;
+
+$('#intensity').change(function() {
+  console.log($(this).val());
+  light.p.intensity = $(this).val();
+  light2.p.intensity = $(this).val();
+  light3.p.intensity = $(this).val();
+  light4.p.intensity = $(this).val();
+  spotLight1.intensity = $(this).val()*2;
+  spotLight2.intensity = $(this).val()*2;
+})
+
+$('#tView').click(function() {
+  //  toggleCamera();
+  lightsOff = !lightsOff;
+
+  if (lightsOff) {
+    light.p.intensity = 0;
+    light2.p.intensity = 0;
+    light3.p.intensity = 0;
+    light4.p.intensity = 0;
+    spotLight1.intensity = 0;
+    spotLight2.intensity = 0;
+  } else {
+    light.p.intensity = 1;
+    light2.p.intensity = 1;
+    light3.p.intensity = 1;
+    light4.p.intensity = 1;
+    spotLight1.intensity = 2;
+    spotLight2.intensity = 2;
+    console.log(light);
+  }
+});
+
+function toggleCamera() {
+  useCamera1++;
+}
+
+var scene, renderer, camera;
+var camera1;
+var camera2;
+class Light {
+  constructor(posX, posY, posZ) {
+    this.p = new THREE.PointLight(0xffffff, 1, 400);
+    this.p.position.set(posX, posY, posZ);
+    scene.add(this.p);
+  }
+}
+class Wall {
+  constructor(wallW, wallD, posX, posZ) {
+    let w = new THREE.Mesh(new THREE.BoxGeometry(wallW, 60, wallD), new THREE.MeshPhongMaterial({
+      color: 0xffffff
+    }))
+    scene.add(w);
+    w.position.x = posX;
+    w.position.z = posZ;
+    w.position.y = 30;
+  }
+}
+class Chair {
+  constructor(posX, posZ, cL, cW) {
+    let t = new THREE.Mesh(new THREE.BoxGeometry(cW, 10, cL), new THREE.MeshPhongMaterial({
+      color: 0x7f4926
+    }))
+    scene.add(t);
+    t.position.x = posX;
+    t.position.z = posZ;
+    t.position.y = 15;
+    let l = new THREE.Mesh(new THREE.BoxGeometry(cW, 30, 10), new THREE.MeshPhongMaterial({
+      color: 0x7f4926
+    }))
+    scene.add(l);
+    l.position.x = posX;
+    l.position.z = posZ + cL / 2;
+    l.position.y = 15;
+    let r = new THREE.Mesh(new THREE.BoxGeometry(cW, 30, 10), new THREE.MeshPhongMaterial({
+      color: 0x7f4926
+    }))
+    scene.add(r);
+    r.position.x = posX;
+    r.position.z = posZ - cL / 2;
+    r.position.y = 15;
+  }
+}
+class Camera {
+  constructor( /*fov,asp,near,far,*/ posX, posY, posZ, tarX, tarY, tarZ) {
+    this.cam = new THREE.PerspectiveCamera(60, 1, 1, 1000);
+    this.cam.position.set(posX, posY, posZ);
+    this.cam.lookAt(new THREE.Vector3(tarX, tarY, tarZ));
+  }
+}
+class Paint {
+  constructor(pW, pH, posX, posZ, source, ang) {
+    let loader = new THREE.TextureLoader();
+    loader.crossOrigin = ''
+    let texture = loader.load(source); // 570x713
+    this.pic = new THREE.Mesh(new THREE.PlaneGeometry(pW, pH), new THREE.MeshPhongMaterial({
+      map: texture
+    }));
+    scene.add(this.pic);
+    this.pic.rotation.y = ang;
+    this.pic.position.x = posX;
+    this.pic.position.y = 30;
+    this.pic.position.z = posZ;
+  }
+}
+/*class sLight {
+  conductor(posX, posY, posZ) {
+    this.sp = new THREE.SpotLight(0xffffff);
+    scene.add(this.sp);
+    this.sp.position.set(posX, posY, posZ);
+    this.sp.intensity = 2;
+    this.sp.angle = 0.5;
+    this.sp.penumbra = 0.4;
+    this.sp.distance = 100;
+    this.sp.castShadow = true;
+    //spotLight.distance = 200;
+    this.sp.decay = 1;
+    
+  }
+}*/
+init();
+animate();
+
+function init() {
+  scene = new THREE.Scene();
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x888888);
+  document.body.appendChild(renderer.domElement);
+
+  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+  camera.position.z = 500;
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+  var gridXZ = new THREE.GridHelper(200, 20, 'red', 'white');
+  //scene.add(gridXZ);
+
+  window.addEventListener('resize', onWindowResize, false);
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  let wall = new Wall(10, 250, 0, -200);
+  let wall2 = new Wall(10, 250, 0, 200);
+  let wall3 = new Wall(150, 10, -200, 0);
+  let wall4 = new Wall(10, 325, 162.5, 0);
+  var axisHelper = new THREE.AxisHelper(60);
+  scene.add(axisHelper);
+  let room1 = new Wall(10, 650, -325, 0);
+  let room2 = new Wall(650, 10, 0, -325);
+  let room3 = new Wall(650, 10, 0, 325);
+  let room4 = new Wall(10, 275, 325, 187.5);
+  let room5 = new Wall(10, 275, 325, -187.5);
+  let chair1 = new Chair(305, -270, 100, 30);
+  let chair2 = new Chair(-20, -270, 100, 30);
+  let chair3 = new Chair(-20, 270, 100, 30);
+  let chair4 = new Chair(305, 270, 100, 30);
+  let loader = new THREE.TextureLoader();
+  loader.crossOrigin = '';
+  texture = loader.load('https://imgur.dcard.tw/Db91A8e.jpg');
+  //texture.repeat.set (2,2);
+  texture.wrapS = texture.wrapT = true;
+
+  let floor = new THREE.Mesh(new THREE.PlaneGeometry(650, 650), new THREE.MeshPhongMaterial({
+    side: THREE.DoubleSide,
+    map: texture
+  }))
+  scene.add(floor)
+  floor.rotation.x = -Math.PI / 2
+
+  camera1 = new Camera(-250, 160, 250, 100, 60, 100);
+  camera2 = new Camera(-250, 160, -250, 100, 60, -100);
+  camera3 = new Camera(250, 160, 250, -100, 60, 100);
+  camera4 = new Camera(250, 160, 250, 100, 60, -100);
+  /////////////////////////////////////////
+  //light = new THREE.PointLight(0xffffff, 1, 270);
+  //light.position.set(80, 150, 0);
+  light = new Light(200, 150, -200);
+  //scene.add(light);
+  light2 = new Light(-200, 150, 200);
+  //scene.add(light2);
+  light3 = new Light(200, 150, 200);
+  light4 = new Light(-200, 150, -200);
+  light5 = new Light(0, 150, 0);
+  light6 = new Light(200, 150, 0);
+  var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  scene.add(directionalLight);
+  /*
+  	var sphereSize = 10;
+    var pointLightHelper = new THREE.PointLightHelper(light, sphereSize);
+    scene.add(pointLightHelper);
+  */
+  pic1 = new Paint(53.6, 49.6, 157.4, 0, "https://i.imgur.com/e5YaAtL.jpg", Math.PI * 1.5); //
+  pic2 = new Paint(51, 60, 167.6, -124.5, "https://i.imgur.com/bmoTDZR.jpg", Math.PI / 2); //
+  //spotlight1 = new sLight(200,80,-124.5);
+  //console.log(spotlight1);
+  //spotlight1.sp.target=pic2.pic;
+  spotLight1 = new THREE.SpotLight(0xffffff);
+  scene.add(spotLight1);
+  spotLight1.position.set(200,80,-124.5);
+  spotLight1.intensity = 2;
+  spotLight1.angle = 0.5;
+  spotLight1.penumbra = 0.4;
+  spotLight1.distance = 100;
+  spotLight1.castShadow = true;
+  spotLight1.decay = 1;
+  spotLight1.target = pic2.pic;
+  
+  pic3 = new Paint(65, 45.5, 167.6, 117.5, "https://i.imgur.com/Cc0BzB8.jpg", Math.PI / 2); //
+  spotLight2 = new THREE.SpotLight(0xffffff);
+  scene.add(spotLight2);
+  spotLight2.position.set(200, 80, 117.5);
+  spotLight2.intensity = 2;
+  spotLight2.angle = 0.5;
+  spotLight2.penumbra = 0.4;
+  spotLight2.distance = 100;
+  spotLight2.castShadow = true;
+  spotLight2.decay = 1;
+  spotLight2.target = pic3.pic;
+  
+  pic4 = new Paint(64, 42.7, 5.6, -124.5, "https://i.imgur.com/YFqUZgj.jpg", Math.PI / 2); //
+  pic5 = new Paint(56.32, 42.24, -319.9, -124.5, "https://i.imgur.com/OhXJ7rk.jpg", Math.PI / 2); //
+  pic6 = new Paint(60, 51.6, -319.9, 124.5, "https://i.imgur.com/FGD2lsZ.jpg", Math.PI / 2); //
+  pic7 = new Paint(77.4, 58.86, -150, 319.9, "https://i.imgur.com/7PLIBQV.jpg", Math.PI); //
+  pic8 = new Paint(42.35, 56.42, 150, 319.9, "https://i.imgur.com/SPcdYhw.jpg", Math.PI) //
+  pic9 = new Paint(60.5, 34.6, 150, -319.9, "https://i.imgur.com/ApZ6t6G.jpg", 0) //
+  pic10 = new Paint(64, 44.7, 5.6, 124.5, "https://i.imgur.com/PbK2aWc.jpg", Math.PI / 2); //
+
+}
+
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  var nowCamera;
+  switch (useCamera1 % 5) {
+    case 1:
+      nowCamera = camera1.cam;
+      break;
+    case 2:
+      nowCamera = camera2.cam;
+      break;
+    case 3:
+      nowCamera = camera3.cam;
+      break;
+    case 4:
+      nowCamera = camera4.cam;
+      break;
+    default:
+      nowCamera = camera;
+      break;
+  }
+  renderer.render(scene, nowCamera);
+}
+
+</script>
+</body>
+
+</html>
